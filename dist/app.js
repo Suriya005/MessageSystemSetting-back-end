@@ -6,11 +6,10 @@ app.use(cors({
   origin: "*"
 }));
 app.use(express.json());
-// content-type: application/json
 app.use(express.urlencoded({
   extended: false
 }));
-app.use("/api", Routes);
+app.use(Routes);
 const PORT = 14000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
