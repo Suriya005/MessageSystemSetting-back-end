@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-
-// URI การเชื่อมต่อกับ MongoDB Server นอก
-const remoteDbUri = "mongodb+srv://suriya_p:GwcqRKwEnOifDRrq@dev.zzd5rac.mongodb.net/message";
+require("dotenv").config();
+const remoteDbUri = process.env.MONGODB_URI;
 mongoose.connect(remoteDbUri, {
   useNewUrlParser: true,
   serverSelectionTimeoutMS: 20000
