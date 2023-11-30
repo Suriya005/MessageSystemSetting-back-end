@@ -4,8 +4,6 @@ const ProviderController = require("../controllers/providerController");
 const ChannelController = require("../controllers/channelController");
 const TypeController = require("../controllers/typeController");
 const TemplateController = require("../controllers/templateController");
-const tokenController = require("../controllers/getToken");
-const Hook = require("../hook/auth");
 
 
 
@@ -14,7 +12,6 @@ router.get("/", (req, res) => {
   res.json({ msg: "Hello World", status: 200 }), console.log("Hello World");
 });
 
-router.get("/token", tokenController.getToken)
 
 // provider
 router.get("/providers", ProviderController.getProviders);

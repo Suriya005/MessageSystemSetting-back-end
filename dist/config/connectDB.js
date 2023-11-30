@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
-const remoteDbUri = process.env.MONGODB_URI;
+const {
+  CONNECTION,
+  DB
+} = require("./db.connect");
+const remoteDbUri = `${CONNECTION}/${DB}`;
 mongoose.connect(remoteDbUri, {
   useNewUrlParser: true,
   serverSelectionTimeoutMS: 20000

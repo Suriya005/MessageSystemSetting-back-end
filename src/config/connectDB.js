@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
+const { CONNECTION, DB} = require("./db.connect");
 
-const remoteDbUri = process.env.MONGODB_URI;
+const remoteDbUri = `${CONNECTION}/${DB}`;
 
 mongoose.connect(remoteDbUri, {
   useNewUrlParser: true,
