@@ -10,14 +10,12 @@ const db = require("../config/connectDB");
 exports.getProviders = async (req, res) => {
   try {
     const providers = await Provider.find();
-    // credential.password decrypt by bcrypt
-    // providers.forEach((provider) => {
-    //   provider.credential.password = bcrypt.compareSync(
-    //     provider.credential.password,
-    //     provider.credential.password
-    //   );
-    // });
-    res.status(200).json(providers);
+    const resulte = {
+        status : 200,
+        message : "success",
+        resulte : providers
+    }
+    res.status(200).json(resulte);
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -27,7 +25,12 @@ exports.getProviders = async (req, res) => {
 exports.getProvider = async (req, res) => {
   try {
     const provider = await Provider.findById(req.params.id);
-    res.status(200).json(provider);
+    const resulte = {
+        status : 200,
+        message : "success",
+        resulte : provider
+    }
+    res.status(200).json(resulte);
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -47,7 +50,7 @@ exports.createProvider = async (req, res) => {
         );
 
         await provider.save();
-        res.status(201).json(provider);
+        res.status(200).json({ message : "success", status:200 });
     
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -70,7 +73,7 @@ exports.updateProvider = async (req, res) => {
             provider.status = req.body.status;
         }
         await provider.save();
-        res.status(200).json(provider);
+        res.status(200).json({ message : "success", status:200 });
     
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -79,12 +82,8 @@ exports.updateProvider = async (req, res) => {
 
 exports.deleteProvider = async (req, res) => {
     try {
-        // const provider = await Provider.findById(req.params.id);
-        // console.log(provider);
-        // await provider.delete();
-        // res.status(200).json({ message: "Provider has been deleted" });
         await Provider.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: "Provider has been deleted" });
+        res.status(200).json({ message: "success", status:200 });
     
     } catch (error) {
         res.status(500).json({ message: error.message });
