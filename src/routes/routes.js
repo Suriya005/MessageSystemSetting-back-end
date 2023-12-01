@@ -17,28 +17,28 @@ router.get("/", (req, res) => {
 router.get("/providers", ProviderController.getProviders);
 router.get("/provider", ProviderController.getProvider);
 router.post("/provider", ProviderController.createProvider);
-router.put("/provider", ProviderController.updateProvider);
+router.patch("/provider", ProviderController.updateProvider);
 router.delete("/provider", ProviderController.deleteProvider);
 
 // channel
 router.get("/channels", ChannelController.getAllChannel);
 router.get("/channel/:id", ChannelController.getChannel);
 router.post("/channel", ChannelController.createChannel);
-router.put("/channel/:id", ChannelController.updateChannel);
+router.patch("/channel/:id", ChannelController.updateChannel);
 router.delete("/channel/:id", ChannelController.deleteChannel);
 
 // type
 router.get("/types", TypeController.getAllType);
 router.get("/type/:id", TypeController.getType);
 router.post("/type", TypeController.createType);
-router.put("/type/:id", TypeController.updateType);
+router.patch("/type/:id", TypeController.updateType);
 router.delete("/type/:id", TypeController.deleteType);
 
 // template
 router.get("/templates", TemplateController.getAllTemplate);
 router.get("/template/:id", TemplateController.getTemplate);
 router.post("/template", TemplateController.createTemplate);
-router.put("/template/:id", TemplateController.updateTemplate);
+router.patch("/template/:id", TemplateController.updateTemplate);
 router.delete("/template/:id", TemplateController.deleteTemplate);
 
 module.exports = router;
