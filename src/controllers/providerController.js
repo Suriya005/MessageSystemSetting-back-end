@@ -24,7 +24,7 @@ exports.getProviders = async (req, res) => {
 
 exports.getProvider = async (req, res) => {
   try {
-    const provider = await Provider.findById(req.params.id);
+    const provider = await Provider.findById(req.query.id);
     const resulte = {
         status : 200,
         message : "success",
@@ -59,7 +59,7 @@ exports.createProvider = async (req, res) => {
 
 exports.updateProvider = async (req, res) => {
     try {
-        const provider = await Provider.findById(req.params.id);
+        const provider = await Provider.findById(req.query.id);
         if (req.body.name) {
             provider.name = req.body.name;
         }
@@ -82,7 +82,7 @@ exports.updateProvider = async (req, res) => {
 
 exports.deleteProvider = async (req, res) => {
     try {
-        await Provider.findByIdAndDelete(req.params.id);
+        await Provider.findByIdAndDelete(req.query.id);
         res.status(200).json({ message: "success", status:200 });
     
     } catch (error) {

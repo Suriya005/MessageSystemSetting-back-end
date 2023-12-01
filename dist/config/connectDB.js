@@ -5,7 +5,6 @@ const {
 } = require("./db.connect");
 const remoteDbUri = `${CONNECTION}/${DB}`;
 mongoose.connect(remoteDbUri, {
-  useNewUrlParser: true,
   serverSelectionTimeoutMS: 20000
 });
 const db = mongoose.connection;

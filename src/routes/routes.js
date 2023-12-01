@@ -15,10 +15,10 @@ router.get("/", (req, res) => {
 
 // provider
 router.get("/providers", ProviderController.getProviders);
-router.get("/provider/:id", ProviderController.getProvider);
+router.get("/provider", ProviderController.getProvider);
 router.post("/provider", ProviderController.createProvider);
-router.put("/provider/:id", ProviderController.updateProvider);
-router.delete("/provider/:id", ProviderController.deleteProvider);
+router.put("/provider", ProviderController.updateProvider);
+router.delete("/provider", ProviderController.deleteProvider);
 
 // channel
 router.get("/channels", ChannelController.getAllChannel);
