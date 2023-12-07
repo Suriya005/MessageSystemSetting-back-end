@@ -18,8 +18,7 @@ exports.getAllChannel = async (req, res) => {
         });
       });
     });
-    console.log(channels);
-    res.status(200).json(channels);
+    res.status(200).json({ message: "success", status: 200, resulte: channels});
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -27,7 +26,7 @@ exports.getAllChannel = async (req, res) => {
 
 exports.getChannel = async (req, res) => {
   try {
-    const channel = await Channel.findById(req.params.id);
+    const channel = await Channel.findById(req.query.id);
     res.status(200).json(channel);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -40,7 +39,7 @@ exports.createChannel = async (req, res) => {
     // add id
     channel._id = new mongoose.Types.ObjectId();
     await channel.save();
-    res.status(201).json(channel);
+    res.status(201).json({ message: "success", status: 200 });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -48,7 +47,7 @@ exports.createChannel = async (req, res) => {
 
 exports.updateChannel = async (req, res) => {
   try {
-    const channel = await Channel.findById(req.params.id);
+    const channel = await Channel.findById(req.query.id);
     if (req.body.name) {
       channel.name = req.body.name;
     }
@@ -62,7 +61,7 @@ exports.updateChannel = async (req, res) => {
       channel.status = req.body.status;
     }
     await channel.save();
-    res.status(201).json(channel);
+    res.status(201).json({ message: "success", status: 200 });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -70,8 +69,8 @@ exports.updateChannel = async (req, res) => {
 
 exports.deleteChannel = async (req, res) => {
   try {
-    const channel = await Channel.findByIdAndDelete(req.params.id);
-    res.status(200).json(channel);
+    await Channel.findByIdAndDelete(req.query.id);
+    res.status(200).json({ message: "success", status: 200 });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Type = require('../models/typeModel');
+const mongoose = require("mongoose");
+const Type = require("../models/typeModel");
 exports.getAllType = (req, res, next) => {
   Type.find().exec().then(types => {
     res.status(200).json(types);
@@ -10,7 +10,8 @@ exports.getAllType = (req, res, next) => {
   });
 };
 exports.getType = (req, res, next) => {
-  Type.findById(req.params.id).exec().then(type => {
+  // Type.findById(req.params.id)
+  Type.findById(req.query.id).exec().then(type => {
     res.status(200).json(type);
   }).catch(err => {
     res.status(500).json({
@@ -31,7 +32,8 @@ exports.createType = (req, res, next) => {
   });
 };
 exports.updateType = (req, res, next) => {
-  Type.findById(req.params.id).exec().then(type => {
+  // Type.findById(req.params.id)
+  Type.findById(req.query.id).exec().then(type => {
     if (req.body.name) {
       type.name = req.body.name;
     }
@@ -58,7 +60,8 @@ exports.updateType = (req, res, next) => {
   });
 };
 exports.deleteType = (req, res, next) => {
-  Type.findByIdAndDelete(req.params.id).exec().then(type => {
+  // Type.findByIdAndDelete(req.params.id)
+  Type.findOneAndDelete(req.query.id).exec().then(type => {
     res.status(200).json(type);
   }).catch(err => {
     res.status(500).json({

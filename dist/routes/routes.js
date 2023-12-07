@@ -22,22 +22,22 @@ router.delete("/provider", ProviderController.deleteProvider);
 
 // channel
 router.get("/channels", ChannelController.getAllChannel);
-router.get("/channel/:id", ChannelController.getChannel);
+router.get("/channel", ChannelController.getChannel);
 router.post("/channel", ChannelController.createChannel);
-router.patch("/channel/:id", ChannelController.updateChannel);
-router.delete("/channel/:id", ChannelController.deleteChannel);
+router.patch("/channel", ChannelController.updateChannel);
+router.delete("/channel", ChannelController.deleteChannel);
 
 // type
 router.get("/types", TypeController.getAllType);
-router.get("/type/:id", TypeController.getType);
+router.get("/type", TypeController.getType);
 router.post("/type", TypeController.createType);
-router.patch("/type/:id", TypeController.updateType);
-router.delete("/type/:id", TypeController.deleteType);
+router.patch("/type", TypeController.updateType);
+router.delete("/type", TypeController.deleteType);
 
 // template
 router.get("/templates", TemplateController.getAllTemplate);
-router.get("/template/:id", TemplateController.getTemplate);
+router.get("/template", TemplateController.getTemplate);
 router.post("/template", TemplateController.createTemplate);
-router.patch("/template/:id", TemplateController.updateTemplate);
-router.delete("/template/:id", TemplateController.deleteTemplate);
+router.patch("/template", TemplateController.updateTemplate);
+router.delete("/template", TemplateController.deleteTemplate);
 module.exports = router;
