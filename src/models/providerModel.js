@@ -2,13 +2,19 @@ const mongoose = require("mongoose");
 
 const credentialSchema = new mongoose.Schema({
   username: String,
-  password: String, 
+  password: String,
 });
 
 const providerSchema = new mongoose.Schema(
   {
     _id: mongoose.Schema.Types.ObjectId,
-    name: String,
+    name: {
+      type: String,
+      required: true,
+      index: {
+        unique: true,
+      },
+    },
     desc: String,
     credential: credentialSchema,
     status: String,

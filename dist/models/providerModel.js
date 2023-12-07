@@ -5,7 +5,13 @@ const credentialSchema = new mongoose.Schema({
 });
 const providerSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    index: {
+      unique: true
+    }
+  },
   desc: String,
   credential: credentialSchema,
   status: String
