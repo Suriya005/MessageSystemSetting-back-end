@@ -21,14 +21,26 @@ exports.getAllChannel = async (req, res) => {
     });
     res.json({ message: "success", status: 200, result: channels });
   } catch (error) {
-    res.json({ message: error.message, result: [], status: 201 });
+    res.json({ message: error.message, result: [], status: 500 });
   }
 };
 
 exports.getChannel = async (req, res) => {
   try {
-    const channel = await Channel.findById(req.query.id);
-    res.json(channel);
+    if (req.query.id == null || req.query.id == "") {
+      res.json({ message: "providerId is null", status: 102, result: [] });
+    } else {
+      const channel = await Channel.findById(req.query.id);
+      if (channel == null) {
+        res.json({ message: "id is invalid", status: 102, result: [] });
+      } else {
+        res.json({
+          message: "success",
+          status: 200,
+          result: channel,
+        });
+      }
+    }
   } catch (error) {
     res.json({ message: error.message, result: [], status: 201 });
   }
@@ -36,14 +48,15 @@ exports.getChannel = async (req, res) => {
 
 exports.createChannel = async (req, res) => {
   try {
-    if (req.body.name == null || req.body.name == "") {
-      res.json({ message: "name is null", status: 102 });
-    } else if (req.body.providerId == null || req.body.providerId == "") {
-      res.json({ message: "providerId is null", status: 102 });
-    } else if (req.body.status == null || req.body.status == "") {
-      res.json({ message: "status is null", status: 102 });
-    } else if (req.body.providerId.length == 0) {
-      res.json({ message: "providerId is null", status: 102 });
+    if (
+      req.body.name == null ||
+      req.body.name == "" ||
+      req.body.providerId == null ||
+      req.body.providerId == "" ||
+      req.body.status == null ||
+      req.body.status == ""
+    ) {
+      res.json({ message: "data type must be check", status: 103 });
     } else {
       const channel = new Channel(req.body);
       channel.providerId = loadash.uniq(channel.providerId);
