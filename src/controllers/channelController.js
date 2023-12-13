@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Channel = require("../models/channelModel");
 const Provider = require("../models/providerModel");
+const Type = require("../models/typeModel");
 const loadash = require("lodash");
 
 exports.getAllChannel = async (req, res) => {
@@ -28,7 +29,7 @@ exports.getAllChannel = async (req, res) => {
 exports.getChannel = async (req, res) => {
   try {
     if (req.query.id == null || req.query.id == "") {
-      res.json({ message: "providerId is null", status: 102, result: [] });
+      res.json({ message: "Wrong data type.", status: 103, result: [] });
     } else {
       const channel = await Channel.findById(req.query.id);
       if (channel == null) {
@@ -56,7 +57,7 @@ exports.createChannel = async (req, res) => {
       req.body.status == null ||
       req.body.status == ""
     ) {
-      res.json({ message: "data type must be check", status: 103 });
+      res.json({ message: "Wrong data type.", status: 103 });
     } else {
       const channel = new Channel(req.body);
       channel.providerId = loadash.uniq(channel.providerId);
@@ -76,13 +77,13 @@ exports.createChannel = async (req, res) => {
 exports.updateChannel = async (req, res) => {
   try {
     if (req.body.name == null || req.body.name == "") {
-      res.json({ message: "name is null", status: 102 });
+      res.json({ message: "Wrong data type.", status: 103 });
     } else if (req.body.providerId == null || req.body.providerId == "") {
-      res.json({ message: "providerId is null", status: 102 });
+      res.json({ message: "Wrong data type.", status: 103 });
     } else if (req.body.status == null || req.body.status == "") {
       res.json({ message: "status is null", status: 102 });
     } else if (req.body.providerId.length == 0) {
-      res.json({ message: "providerId is null", status: 102 });
+      res.json({ message: "Wrong data type.", status: 103 });
     } else {
       const channel = await Channel.findById(req.query.id);
       if (req.body.name) {
@@ -111,8 +112,13 @@ exports.updateChannel = async (req, res) => {
 
 exports.deleteChannel = async (req, res) => {
   try {
-    await Channel.findByIdAndDelete(req.query.id);
-    res.json({ message: "success", status: 200 });
+    const PK = await Type.find({ msgChannelId: req.query.id });
+    if (PK.length > 0) {
+      res.json({ message: "Wrong data type.", status: 103 });
+    } else {
+      await Channel.findByIdAndDelete(req.query.id);
+      res.json({ message: "success", status: 200 });
+    }
   } catch (error) {
     res.json({ message: error.message });
   }

@@ -1,71 +1,147 @@
 const mongoose = require("mongoose");
 const Type = require("../models/typeModel");
-exports.getAllType = (req, res, next) => {
-  Type.find().exec().then(types => {
-    res.status(200).json(types);
-  }).catch(err => {
-    res.status(500).json({
-      message: err.message
+const Channel = require("../models/channelModel");
+exports.getAllType = async (req, res) => {
+  try {
+    const msgType = await Type.find();
+    res.json({
+      message: "success",
+      status: 200,
+      result: msgType
     });
-  });
-};
-exports.getType = (req, res, next) => {
-  // Type.findById(req.params.id)
-  Type.findById(req.query.id).exec().then(type => {
-    res.status(200).json(type);
-  }).catch(err => {
-    res.status(500).json({
-      message: err.message
+  } catch (error) {
+    res.json({
+      message: error.message,
+      status: 500,
+      result: []
     });
-  });
+  }
 };
-exports.createType = (req, res, next) => {
-  const type = new Type(req.body);
-  // add id
-  type._id = new mongoose.Types.ObjectId();
-  type.save().then(result => {
-    res.status(201).json(type);
-  }).catch(err => {
-    res.status(500).json({
-      message: err.message
+exports.getType = async (req, res) => {
+  if (req.query.id == null || req.query.id == "") {
+    res.json({
+      message: "Wrong data type.",
+      status: 103
     });
-  });
-};
-exports.updateType = (req, res, next) => {
-  // Type.findById(req.params.id)
-  Type.findById(req.query.id).exec().then(type => {
-    if (req.body.name) {
-      type.name = req.body.name;
-    }
-    if (req.body.desc) {
-      type.desc = req.body.desc;
-    }
-    if (req.body.msgChannelId) {
-      type.msgChannelId = req.body.msgChannelId;
-    }
-    if (req.body.status) {
-      type.status = req.body.status;
-    }
-    type.save().then(result => {
-      res.status(201).json(type);
-    }).catch(err => {
-      res.status(500).json({
-        message: err.message
+  } else {
+    try {
+      const msgType = await Type.findById(req.query.id);
+      if (msgType == null) {
+        res.json({
+          message: "Wrong data type.",
+          status: 103
+        });
+      } else {
+        res.json({
+          message: "success",
+          status: 200,
+          result: msgType
+        });
+      }
+    } catch (err) {
+      res.json({
+        message: err.message,
+        status: 500
       });
-    });
-  }).catch(err => {
-    res.status(500).json({
-      message: err.message
-    });
-  });
+    }
+  }
 };
-exports.deleteType = (req, res, next) => {
-  // Type.findByIdAndDelete(req.params.id)
-  Type.findOneAndDelete(req.query.id).exec().then(type => {
-    res.status(200).json(type);
-  }).catch(err => {
-    res.status(500).json({
-      message: err.message
+exports.createType = async (req, res) => {
+  try {
+    if (req.body.name == null || req.body.name == "" || req.body.msgChannelId == null || req.body.msgChannelId == "" || req.body.status == null || req.body.status == "") {
+      res.json({
+        message: "Wrong data type.",
+        status: 103
+      });
+    } else {
+      const channel = await Channel.findById(req.body.msgChannelId);
+      if (channel == null || channel == "") {
+        res.json({
+          message: "Wrong data type.",
+          status: 103
+        });
+      } else {
+        const msgType = new Type(req.body);
+        msgType._id = new mongoose.Types.ObjectId();
+        await msgType.save();
+        res.json({
+          message: "success",
+          status: 200
+        });
+      }
+    }
+  } catch (error) {
+    if (error.code == 11000) {
+      res.json({
+        message: "duplicata data",
+        status: 202
+      });
+    } else {
+      res.json({
+        message: error.message,
+        status: 500
+      });
+    }
+  }
+};
+exports.updateType = async (req, res) => {
+  if (req.body.name == null || req.body.name == "" || req.body.msgChannelId == null || req.body.msgChannelId == "" || req.body.status == null || req.body.status == "") {
+    res.json({
+      message: "Wrong data type.",
+      status: 103
     });
-  });
+  } else {
+    try {
+      const msgType = await Type.findById(req.query.id);
+      if (msgType == null) {
+        res.json({
+          message: "Wrong data typee.",
+          status: 103
+        });
+      } else {
+        msgType.name = req.body.name;
+        msgType.msgChannelId = req.body.msgChannelId;
+        msgType.status = req.body.status;
+        await msgType.save();
+        res.json({
+          message: "success",
+          status: 200
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.json({
+        message: error.message,
+        status: 500
+      });
+    }
+  }
+};
+exports.deleteType = async (req, res) => {
+  if (req.query.id == null || req.query.id == "") {
+    res.json({
+      message: "Wrong data type.",
+      status: 103
+    });
+  } else {
+    try {
+      const msgType = await Type.findByIdAndDelete(req.query.id);
+      if (msgType == null) {
+        res.json({
+          message: "Wrong data type.",
+          status: 103
+        });
+      } else {
+        res.json({
+          message: "success",
+          status: 200
+        });
+      }
+    } catch (error) {
+      res.json({
+        message: error.message,
+        status: 500
+      });
+    }
+  }
 };

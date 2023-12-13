@@ -7,7 +7,9 @@ exports.getAllTemplate = (req, res) => {
     res.status(200).json(templates);
   }).catch(err => {
     res.status(500).json({
-      message: err.message
+      message: err.message,
+      result: [],
+      status: 500
     });
   });
 };

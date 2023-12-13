@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Provider = require("../models/providerModel");
+const Channel = require("../models/channelModel");
 const bcrypt = require("bcrypt");
 const db = require("../config/connectDB");
 exports.getProviders = async (req, res) => {
@@ -15,7 +16,7 @@ exports.getProviders = async (req, res) => {
     res.json({
       message: error.message,
       result: [],
-      status: 201
+      status: 500
     });
   }
 };
@@ -40,23 +41,23 @@ exports.createProvider = async (req, res) => {
   try {
     if (req.body.name == null || req.body.name == "") {
       res.json({
-        message: "name is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.credential.username == null || req.body.credential.username == "") {
       res.json({
-        message: "username is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.credential.password == null || req.body.credential.password == "") {
       res.json({
-        message: "password is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.status == null || req.body.status == "") {
       res.json({
-        message: "status is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else {
       const provider = new Provider(req.body);
@@ -87,23 +88,23 @@ exports.updateProvider = async (req, res) => {
   try {
     if (req.body.name == null || req.body.name == "") {
       res.json({
-        message: "name is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.credential.username == null || req.body.credential.username == "") {
       res.json({
-        message: "username is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.credential.password == null || req.body.credential.password == "") {
       res.json({
-        message: "password is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.status == null || req.body.status == "") {
       res.json({
-        message: "status is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else {
       const provider = await Provider.findById(req.query.id);
@@ -141,11 +142,38 @@ exports.updateProvider = async (req, res) => {
 };
 exports.deleteProvider = async (req, res) => {
   try {
-    await Provider.findByIdAndDelete(req.query.id);
-    res.json({
-      message: "success",
-      status: 200
-    });
+    if (req.query.id == null || req.query.id == "") {
+      res.json({
+        message: "Wrong data type.",
+        status: 103
+      });
+    } else {
+      const provider = await Provider.findById(req.query.id);
+      if (provider == null) {
+        res.json({
+          message: "Wrong data type.",
+          status: 103
+        });
+      } else {
+        const channel = await Channel.find({
+          providerId: {
+            $in: [req.query.id]
+          }
+        });
+        if (channel.length > 0) {
+          res.json({
+            message: "Wrong data type.",
+            status: 103
+          });
+        } else {
+          await Provider.findByIdAndDelete(req.query.id);
+          res.json({
+            message: "success",
+            status: 200
+          });
+        }
+      }
+    }
   } catch (error) {
     res.json({
       message: error.message

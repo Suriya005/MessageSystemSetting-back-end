@@ -7,7 +7,7 @@ exports.getAllType = async (req, res) => {
     const msgType = await Type.find();
     res.json({ message: "success", status: 200, result: msgType });
   } catch (error) {
-    res.json({ message: error.message, status: 500 });
+    res.json({ message: error.message, status: 500, result: [] });
   }
 };
 
@@ -73,7 +73,7 @@ exports.updateType = async (req, res) => {
     try {
       const msgType = await Type.findById(req.query.id);
       if (msgType == null) {
-        res.json({ message: "Wrong data type.", status: 103 });
+        res.json({ message: "Wrong data typee.", status: 103 });
       } else {
         msgType.name = req.body.name;
         msgType.msgChannelId = req.body.msgChannelId;
@@ -82,6 +82,7 @@ exports.updateType = async (req, res) => {
         res.json({ message: "success", status: 200 });
       }
     } catch (error) {
+      console.log(error);
       res.json({ message: error.message, status: 500 });
     }
   }

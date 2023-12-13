@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Channel = require("../models/channelModel");
 const Provider = require("../models/providerModel");
+const Type = require("../models/typeModel");
 const loadash = require("lodash");
 exports.getAllChannel = async (req, res) => {
   try {
@@ -27,14 +28,34 @@ exports.getAllChannel = async (req, res) => {
     res.json({
       message: error.message,
       result: [],
-      status: 201
+      status: 500
     });
   }
 };
 exports.getChannel = async (req, res) => {
   try {
-    const channel = await Channel.findById(req.query.id);
-    res.json(channel);
+    if (req.query.id == null || req.query.id == "") {
+      res.json({
+        message: "Wrong data type.",
+        status: 103,
+        result: []
+      });
+    } else {
+      const channel = await Channel.findById(req.query.id);
+      if (channel == null) {
+        res.json({
+          message: "id is invalid",
+          status: 102,
+          result: []
+        });
+      } else {
+        res.json({
+          message: "success",
+          status: 200,
+          result: channel
+        });
+      }
+    }
   } catch (error) {
     res.json({
       message: error.message,
@@ -45,25 +66,10 @@ exports.getChannel = async (req, res) => {
 };
 exports.createChannel = async (req, res) => {
   try {
-    if (req.body.name == null || req.body.name == "") {
+    if (req.body.name == null || req.body.name == "" || req.body.providerId == null || req.body.providerId == "" || req.body.status == null || req.body.status == "") {
       res.json({
-        message: "name is null",
-        status: 102
-      });
-    } else if (req.body.providerId == null || req.body.providerId == "") {
-      res.json({
-        message: "providerId is null",
-        status: 102
-      });
-    } else if (req.body.status == null || req.body.status == "") {
-      res.json({
-        message: "status is null",
-        status: 102
-      });
-    } else if (req.body.providerId.length == 0) {
-      res.json({
-        message: "providerId is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else {
       const channel = new Channel(req.body);
@@ -93,13 +99,13 @@ exports.updateChannel = async (req, res) => {
   try {
     if (req.body.name == null || req.body.name == "") {
       res.json({
-        message: "name is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.providerId == null || req.body.providerId == "") {
       res.json({
-        message: "providerId is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else if (req.body.status == null || req.body.status == "") {
       res.json({
@@ -108,8 +114,8 @@ exports.updateChannel = async (req, res) => {
       });
     } else if (req.body.providerId.length == 0) {
       res.json({
-        message: "providerId is null",
-        status: 102
+        message: "Wrong data type.",
+        status: 103
       });
     } else {
       const channel = await Channel.findById(req.query.id);
@@ -147,11 +153,21 @@ exports.updateChannel = async (req, res) => {
 };
 exports.deleteChannel = async (req, res) => {
   try {
-    await Channel.findByIdAndDelete(req.query.id);
-    res.json({
-      message: "success",
-      status: 200
+    const PK = await Type.find({
+      msgChannelId: req.query.id
     });
+    if (PK.length > 0) {
+      res.json({
+        message: "Wrong data type.",
+        status: 103
+      });
+    } else {
+      await Channel.findByIdAndDelete(req.query.id);
+      res.json({
+        message: "success",
+        status: 200
+      });
+    }
   } catch (error) {
     res.json({
       message: error.message
