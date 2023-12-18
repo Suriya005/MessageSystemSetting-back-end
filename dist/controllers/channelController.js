@@ -44,8 +44,8 @@ exports.getChannel = async (req, res) => {
       const channel = await Channel.findById(req.query.id);
       if (channel == null) {
         res.json({
-          message: "id is invalid",
-          status: 102,
+          message: "Wrong data type.",
+          status: 103,
           result: []
         });
       } else {

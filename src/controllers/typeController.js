@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Type = require("../models/typeModel");
 const Channel = require("../models/channelModel");
+const Template = require("../models/templateModel");
 
 exports.getAllType = async (req, res) => {
   try {
@@ -82,25 +83,30 @@ exports.updateType = async (req, res) => {
         res.json({ message: "success", status: 200 });
       }
     } catch (error) {
-      console.log(error);
       res.json({ message: error.message, status: 500 });
     }
   }
 };
 
 exports.deleteType = async (req, res) => {
-  if (req.query.id == null || req.query.id == "") {
-    res.json({ message: "Wrong data type.", status: 103 });
-  } else {
-    try {
-      const msgType = await Type.findByIdAndDelete(req.query.id);
-      if (msgType == null) {
+  try {
+    const PK = await Template.find({ messageTypeId: req.query.id });
+    if (PK.length > 0) {
+      res.json({ message: "Wrong data type.", status: 103 });
+    } else {
+      if (req.query.id == null || req.query.id == "") {
         res.json({ message: "Wrong data type.", status: 103 });
       } else {
-        res.json({ message: "success", status: 200 });
+        const msgType = await Type.findByIdAndDelete(req.query.id);
+        if (msgType == null) {
+          res.json({ message: "Wrong data type.", status: 103 });
+        } else {
+          res.json({ message: "success", status: 200 });
+        }
       }
-    } catch (error) {
-      res.json({ message: error.message, status: 500 });
     }
+    
+  } catch (error) {
+    res.json({ message: error.message, status: 500 });
   }
 };

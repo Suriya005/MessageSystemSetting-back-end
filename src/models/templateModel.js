@@ -8,15 +8,20 @@ const contentSchema = new mongoose.Schema({
 const templateSchema = new mongoose.Schema(
   {
     _id: mongoose.Schema.Types.ObjectId,
-    name: String,
+    name: {
+      type: String,
+      required: true,
+      index: {
+        unique: true,
+      },
+    },
     desc: String,
     content: contentSchema,
-    msgChannelId: mongoose.Schema.Types.ObjectId,
+    messageTypeId: mongoose.Schema.Types.ObjectId,
     status: String,
   },
   { collection: "msgTemplate" }
 );
-
 
 const Template = mongoose.model("template", templateSchema);
 
