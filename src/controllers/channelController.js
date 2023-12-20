@@ -6,20 +6,26 @@ const loadash = require("lodash");
 
 exports.getAllChannel = async (req, res) => {
   try {
-    const channels = await Channel.find();
-    const providers = await Provider.find();
-    let providerData = [];
-    channels.forEach((channel) => {
-      providerData = [];
-      channel.providerId.forEach((id) => {
-        providers.forEach((provider) => {
-          if (id == provider._id) {
-            providerData.push(provider);
-            channel.providerId = providerData;
-          }
-        });
-      });
-    });
+    const channels = await Channel.aggregate([
+      {
+        $lookup: {
+          from: "provider",
+          localField: "providerId",
+          foreignField: "_id",
+          as: "provider_data",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          desc: 1,
+          providerData: "$provider_data",
+          status: 1,
+        },
+      },
+    ]);
+
     res.json({ message: "success", status: 200, result: channels });
   } catch (error) {
     res.json({ message: error.message, result: [], status: 500 });
@@ -29,21 +35,44 @@ exports.getAllChannel = async (req, res) => {
 exports.getChannel = async (req, res) => {
   try {
     if (req.query.id == null || req.query.id == "") {
-      res.json({ message: "Wrong data type.", status: 103, result: [] });
+      res.json({ message: "invalid parameter.", status: 102, result: [] });
     } else {
-      const channel = await Channel.findById(req.query.id);
-      if (channel == null) {
-        res.json({ message: "Wrong data type.", status: 103, result: [] });
+      const channel = await Channel.aggregate([
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(req.query.id),
+          },
+        },
+        {
+          $lookup: {
+            from: "provider",
+            localField: "providerId",
+            foreignField: "_id",
+            as: "providerData",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            desc: 1,
+            providerData: "$providerData",
+            status: 1,
+          },
+        },
+      ]);
+      if (channel.length == 0) {
+        res.json({ message: "success", status: 200, result: [] });
       } else {
         res.json({
           message: "success",
           status: 200,
-          result: channel,
+          result: channel[0],
         });
       }
     }
   } catch (error) {
-    res.json({ message: error.message, result: [], status: 201 });
+    res.json({ message: error.message, result: [], status: 200 });
   }
 };
 
@@ -57,11 +86,20 @@ exports.createChannel = async (req, res) => {
       req.body.status == null ||
       req.body.status == ""
     ) {
-      res.json({ message: "Wrong data type.", status: 103 });
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      const channel = new Channel(req.body);
-      channel.providerId = loadash.uniq(channel.providerId);
-      channel._id = new mongoose.Types.ObjectId();
+      const channel = new Channel({
+        _id: new mongoose.Types.ObjectId(),
+        name: req.body.name,
+        desc: req.body.desc,
+        providerId: [],
+        status: req.body.status,
+      });
+      const provider = loadash.uniq(req.body.providerId);
+      provider.forEach((id) => {
+        channel.providerId.push(new mongoose.Types.ObjectId(id));
+      });
+      console.log(channel.providerId);
       await channel.save();
       res.json({ message: "success", status: 200 });
     }
@@ -76,16 +114,17 @@ exports.createChannel = async (req, res) => {
 
 exports.updateChannel = async (req, res) => {
   try {
-    if (req.body.name == null || req.body.name == "") {
-      res.json({ message: "Wrong data type.", status: 103 });
-    } else if (req.body.providerId == null || req.body.providerId == "") {
-      res.json({ message: "Wrong data type.", status: 103 });
-    } else if (req.body.status == null || req.body.status == "") {
-      res.json({ message: "status is null", status: 102 });
-    } else if (req.body.providerId.length == 0) {
-      res.json({ message: "Wrong data type.", status: 103 });
+    if (
+      req.body.name == null ||
+      req.body.name == "" ||
+      req.body.providerId == null ||
+      req.body.providerId == "" ||
+      req.body.status == null ||
+      req.body.status == ""
+    ) {
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      const channel = await Channel.findById(req.query.id);
+      let channel = await Channel.findById(req.query.id);
       if (req.body.name) {
         channel.name = req.body.name;
       }
@@ -93,7 +132,11 @@ exports.updateChannel = async (req, res) => {
         channel.desc = req.body.desc;
       }
       if (req.body.providerId) {
-        channel.providerId = req.body.providerId;
+        const provider = loadash.uniq(req.body.providerId);
+        channel.providerId = [];
+        provider.forEach((id) => {
+          channel.providerId.push(new mongoose.Types.ObjectId(id));
+        });
       }
       if (req.body.status) {
         channel.status = req.body.status;
@@ -105,7 +148,7 @@ exports.updateChannel = async (req, res) => {
     if (error.code == 11000) {
       res.json({ message: "duplicata data", status: 202 });
     } else {
-      res.json({ message: error.message, status: 500 });
+      res.json({ message: "failed", status: 201 });
     }
   }
 };
@@ -116,10 +159,16 @@ exports.deleteChannel = async (req, res) => {
     if (PK.length > 0) {
       res.json({ message: "Wrong data type.", status: 103 });
     } else {
-      await Channel.findByIdAndDelete(req.query.id);
-      res.json({ message: "success", status: 200 });
+      const channel = await Channel.findById(req.query.id);
+      if(channel.status == 'inactive'){
+        res.json({ message: "failed", status: 201 });
+      }else{
+        channel.status = 'inactive';
+        await channel.save();
+        res.json({ message: "success", status: 200 });
+      }
     }
   } catch (error) {
-    res.json({ message: error.message });
+    res.json({ message: "failed", status: 201 });
   }
 };

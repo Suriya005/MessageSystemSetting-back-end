@@ -14,9 +14,9 @@ exports.getProviders = async (req, res) => {
     res.json(result);
   } catch (error) {
     res.json({
-      message: error.message,
+      message: failed,
       result: [],
-      status: 500
+      status: 201
     });
   }
 };
@@ -31,7 +31,7 @@ exports.getProvider = async (req, res) => {
     res.json(result);
   } catch (error) {
     res.json({
-      message: error.message,
+      message: "failed",
       result: [],
       status: 201
     });
@@ -39,25 +39,10 @@ exports.getProvider = async (req, res) => {
 };
 exports.createProvider = async (req, res) => {
   try {
-    if (req.body.name == null || req.body.name == "") {
+    if (req.body.name == null || req.body.name == "" || req.body.credential.username == null || req.body.credential.username == "" || req.body.credential.password == null || req.body.credential.password == "" || req.body.status == null || req.body.status == "") {
       res.json({
-        message: "Wrong data type.",
-        status: 103
-      });
-    } else if (req.body.credential.username == null || req.body.credential.username == "") {
-      res.json({
-        message: "Wrong data type.",
-        status: 103
-      });
-    } else if (req.body.credential.password == null || req.body.credential.password == "") {
-      res.json({
-        message: "Wrong data type.",
-        status: 103
-      });
-    } else if (req.body.status == null || req.body.status == "") {
-      res.json({
-        message: "Wrong data type.",
-        status: 103
+        message: "invalid parameter.",
+        status: 102
       });
     } else {
       const provider = new Provider(req.body);
@@ -78,33 +63,18 @@ exports.createProvider = async (req, res) => {
       });
     } else {
       res.json({
-        message: error.message,
-        status: 500
+        message: "failed",
+        status: 201
       });
     }
   }
 };
 exports.updateProvider = async (req, res) => {
   try {
-    if (req.body.name == null || req.body.name == "") {
+    if (req.body.name == null || req.body.name == "" || req.body.credential.username == null || req.body.credential.username == "" || req.body.credential.password == null || req.body.credential.password == "" || req.body.status == null || req.body.status == "") {
       res.json({
-        message: "Wrong data type.",
-        status: 103
-      });
-    } else if (req.body.credential.username == null || req.body.credential.username == "") {
-      res.json({
-        message: "Wrong data type.",
-        status: 103
-      });
-    } else if (req.body.credential.password == null || req.body.credential.password == "") {
-      res.json({
-        message: "Wrong data type.",
-        status: 103
-      });
-    } else if (req.body.status == null || req.body.status == "") {
-      res.json({
-        message: "Wrong data type.",
-        status: 103
+        message: "invalid parameter.",
+        status: 102
       });
     } else {
       const provider = await Provider.findById(req.query.id);
@@ -134,8 +104,8 @@ exports.updateProvider = async (req, res) => {
       });
     } else {
       res.json({
-        message: error.message,
-        status: 500
+        message: "failed",
+        status: 201
       });
     }
   }
@@ -144,8 +114,8 @@ exports.deleteProvider = async (req, res) => {
   try {
     if (req.query.id == null || req.query.id == "") {
       res.json({
-        message: "Wrong data type.",
-        status: 103
+        message: "invalid parameter.",
+        status: 102
       });
     } else {
       const provider = await Provider.findById(req.query.id);
@@ -166,17 +136,27 @@ exports.deleteProvider = async (req, res) => {
             status: 103
           });
         } else {
-          await Provider.findByIdAndDelete(req.query.id);
-          res.json({
-            message: "success",
-            status: 200
-          });
+          const result = await Provider.findById(req.query.id);
+          if (result.status == "inactive") {
+            res.json({
+              message: "failed",
+              status: 201
+            });
+          } else {
+            result.status = "inactive";
+            await result.save();
+            res.json({
+              message: "success",
+              status: 200
+            });
+          }
         }
       }
     }
   } catch (error) {
     res.json({
-      message: error.message
+      message: failed,
+      status: 201
     });
   }
 };

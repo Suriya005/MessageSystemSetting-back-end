@@ -8,13 +8,14 @@ exports.getAllType = async (req, res) => {
     const msgType = await Type.find();
     res.json({ message: "success", status: 200, result: msgType });
   } catch (error) {
-    res.json({ message: error.message, status: 500, result: [] });
+    res.json({ message: 'failed', status: 201, result: [] });
   }
+
 };
 
 exports.getType = async (req, res) => {
   if (req.query.id == null || req.query.id == "") {
-    res.json({ message: "Wrong data type.", status: 103 });
+    res.json({ message: "invalid parameter.", status: 102 });
   } else {
     try {
       const msgType = await Type.findById(req.query.id);
@@ -24,7 +25,7 @@ exports.getType = async (req, res) => {
         res.json({ message: "success", status: 200, result: msgType });
       }
     } catch (err) {
-      res.json({ message: err.message, status: 500 });
+      res.json({ message: 'failed', status: 201,  result: []});
     }
   }
 };
@@ -39,7 +40,7 @@ exports.createType = async (req, res) => {
       req.body.status == null ||
       req.body.status == ""
     ) {
-      res.json({ message: "Wrong data type.", status: 103 });
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
       const channel = await Channel.findById(req.body.msgChannelId);
       if (channel == null || channel == "") {
@@ -55,7 +56,7 @@ exports.createType = async (req, res) => {
     if (error.code == 11000) {
       res.json({ message: "duplicata data", status: 202 });
     } else {
-      res.json({ message: error.message, status: 500 });
+      res.json({ message: 'failed', status: 201 });
     }
   }
 };
@@ -69,7 +70,7 @@ exports.updateType = async (req, res) => {
     req.body.status == null ||
     req.body.status == ""
   ) {
-    res.json({ message: "Wrong data type.", status: 103 });
+    res.json({ message: "invalid parameter.", status: 102 });
   } else {
     try {
       const msgType = await Type.findById(req.query.id);
@@ -83,7 +84,7 @@ exports.updateType = async (req, res) => {
         res.json({ message: "success", status: 200 });
       }
     } catch (error) {
-      res.json({ message: error.message, status: 500 });
+      res.json({ message: 'failed', status: 201 });
     }
   }
 };
@@ -92,21 +93,22 @@ exports.deleteType = async (req, res) => {
   try {
     const PK = await Template.find({ messageTypeId: req.query.id });
     if (PK.length > 0) {
-      res.json({ message: "Wrong data type.", status: 103 });
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
       if (req.query.id == null || req.query.id == "") {
         res.json({ message: "Wrong data type.", status: 103 });
       } else {
-        const msgType = await Type.findByIdAndDelete(req.query.id);
-        if (msgType == null) {
-          res.json({ message: "Wrong data type.", status: 103 });
-        } else {
+        const msgType = await Type.findById(req.query.id);
+        if(msgType.status == 'inactive'){
+          res.json({ message: "failed", status: 201 });
+        }else{
+          msgType.status = 'inactive';
+          await msgType.save();
           res.json({ message: "success", status: 200 });
         }
       }
     }
-    
   } catch (error) {
-    res.json({ message: error.message, status: 500 });
+    res.json({ message: 'failed', status: 201 });
   }
 };
