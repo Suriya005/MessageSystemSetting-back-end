@@ -8,9 +8,8 @@ exports.getAllType = async (req, res) => {
     const msgType = await Type.find();
     res.json({ message: "success", status: 200, result: msgType });
   } catch (error) {
-    res.json({ message: 'failed', status: 201, result: [] });
+    res.json({ message: "failed", status: 201, result: [] });
   }
-
 };
 
 exports.getType = async (req, res) => {
@@ -20,12 +19,12 @@ exports.getType = async (req, res) => {
     try {
       const msgType = await Type.findById(req.query.id);
       if (msgType == null) {
-        res.json({ message: "Wrong data type.", status: 103 });
+        res.json({ message: "success", status: 200, result: [] });
       } else {
         res.json({ message: "success", status: 200, result: msgType });
       }
     } catch (err) {
-      res.json({ message: 'failed', status: 201,  result: []});
+      res.json({ message: "failed", status: 201 });
     }
   }
 };
@@ -56,7 +55,7 @@ exports.createType = async (req, res) => {
     if (error.code == 11000) {
       res.json({ message: "duplicata data", status: 202 });
     } else {
-      res.json({ message: 'failed', status: 201 });
+      res.json({ message: "failed", status: 201 });
     }
   }
 };
@@ -84,31 +83,31 @@ exports.updateType = async (req, res) => {
         res.json({ message: "success", status: 200 });
       }
     } catch (error) {
-      res.json({ message: 'failed', status: 201 });
+      res.json({ message: "failed", status: 201 });
     }
   }
 };
 
 exports.deleteType = async (req, res) => {
   try {
-    const PK = await Template.find({ messageTypeId: req.query.id });
-    if (PK.length > 0) {
-      res.json({ message: "invalid parameter.", status: 102 });
+    // const PK = await Template.find({ messageTypeId: req.query.id });
+    // if (PK.length > 0) {
+    //   res.json({ message: "invalid parameter.", status: 102 });
+    // } else {
+    if (req.query.id == null || req.query.id == "") {
+      res.json({ message: "Wrong data type.", status: 103 });
     } else {
-      if (req.query.id == null || req.query.id == "") {
-        res.json({ message: "Wrong data type.", status: 103 });
+      const msgType = await Type.findById(req.query.id);
+      if (msgType.status == "inactive") {
+        res.json({ message: "failed", status: 201 });
       } else {
-        const msgType = await Type.findById(req.query.id);
-        if(msgType.status == 'inactive'){
-          res.json({ message: "failed", status: 201 });
-        }else{
-          msgType.status = 'inactive';
-          await msgType.save();
-          res.json({ message: "success", status: 200 });
-        }
+        msgType.status = "inactive";
+        await msgType.save();
+        res.json({ message: "success", status: 200 });
       }
     }
+    // }
   } catch (error) {
-    res.json({ message: 'failed', status: 201 });
+    res.json({ message: "failed", status: 201 });
   }
 };

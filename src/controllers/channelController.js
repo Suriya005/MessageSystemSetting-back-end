@@ -35,7 +35,7 @@ exports.getAllChannel = async (req, res) => {
 exports.getChannel = async (req, res) => {
   try {
     if (req.query.id == null || req.query.id == "") {
-      res.json({ message: "invalid parameter.", status: 102, result: [] });
+      res.json({  message: "invalid parameter.", status: 102  });
     } else {
       const channel = await Channel.aggregate([
         {
@@ -61,7 +61,7 @@ exports.getChannel = async (req, res) => {
           },
         },
       ]);
-      if (channel.length == 0) {
+      if (channel == null) {
         res.json({ message: "success", status: 200, result: [] });
       } else {
         res.json({
@@ -72,7 +72,7 @@ exports.getChannel = async (req, res) => {
       }
     }
   } catch (error) {
-    res.json({ message: error.message, result: [], status: 200 });
+    res.json({ message: "failed", status: 201 });
   }
 };
 
@@ -155,19 +155,19 @@ exports.updateChannel = async (req, res) => {
 
 exports.deleteChannel = async (req, res) => {
   try {
-    const PK = await Type.find({ msgChannelId: req.query.id });
-    if (PK.length > 0) {
-      res.json({ message: "Wrong data type.", status: 103 });
+    // const PK = await Type.find({ msgChannelId: req.query.id });
+    // if (PK.length > 0) {
+    //   res.json({ message: "Wrong data type.", status: 103 });
+    // } else {
+    const channel = await Channel.findById(req.query.id);
+    if (channel.status == "inactive") {
+      res.json({ message: "failed", status: 201 });
     } else {
-      const channel = await Channel.findById(req.query.id);
-      if(channel.status == 'inactive'){
-        res.json({ message: "failed", status: 201 });
-      }else{
-        channel.status = 'inactive';
-        await channel.save();
-        res.json({ message: "success", status: 200 });
-      }
+      channel.status = "inactive";
+      await channel.save();
+      res.json({ message: "success", status: 200 });
     }
+    // }
   } catch (error) {
     res.json({ message: "failed", status: 201 });
   }

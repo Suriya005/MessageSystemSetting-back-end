@@ -20,18 +20,22 @@ exports.getAllTemplate = async (req, res) => {
 // get template by id
 exports.getTemplate = async (req, res) => {
   try {
-    const template = await Template.findById(req.query.id);
-    if (template == null) {
-      res.json({ message: "success", status: 103, result: [] });
+    if (req.query.id == null || req.query.id == "") {
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      res.json({
-        message: "success",
-        status: 200,
-        result: template,
-      });
+      const template = await Template.findById(req.query.id);
+      if (template == null) {
+        res.json({ message: "success", status: 200, result: [] });
+      } else {
+        res.json({
+          message: "success",
+          status: 200,
+          result: template,
+        });
+      }
     }
   } catch (err) {
-    res.json({ message: "failed", status: 201, result: [] });
+    res.json({ message: "failed", status: 201 });
   }
 };
 
@@ -41,8 +45,6 @@ exports.createTemplate = async (req, res) => {
     if (
       req.body.name == null ||
       req.body.name == "" ||
-      req.body.desc == null ||
-      req.body.desc == "" ||
       req.body.content == null ||
       req.body.content == "" ||
       req.body.messageTypeId == null ||
@@ -50,7 +52,7 @@ exports.createTemplate = async (req, res) => {
       req.body.status == null ||
       req.body.status == ""
     ) {
-      res.json({ message: "Wrong data type.", status: 103 });
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
       const template = new Template(req.body);
       template._id = new mongoose.Types.ObjectId();
@@ -72,8 +74,6 @@ exports.updateTemplate = async (req, res) => {
     if (
       req.body.name == null ||
       req.body.name == "" ||
-      req.body.desc == null ||
-      req.body.desc == "" ||
       req.body.content == null ||
       req.body.content == "" ||
       req.body.messageTypeId == null ||
@@ -83,27 +83,31 @@ exports.updateTemplate = async (req, res) => {
     ) {
       res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      const template = await Template.findById(req.query.id);
-      if (template == null) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.messageTypeId)) {
         res.json({ message: "Wrong data type.", status: 103 });
       } else {
-        if (req.body.name) {
-          template.name = req.body.name;
+        const template = await Template.findById(req.query.id);
+        if (template == null) {
+          res.json({ message: "Wrong data type.", status: 103 });
+        } else {
+          if (req.body.name) {
+            template.name = req.body.name;
+          }
+          if (req.body.desc) {
+            template.desc = req.body.desc;
+          }
+          if (req.body.content) {
+            template.content = req.body.content;
+          }
+          if (req.body.messageTypeId) {
+            template.messageTypeId = req.body.messageTypeId;
+          }
+          if (req.body.status) {
+            template.status = req.body.status;
+          }
+          await template.save();
+          res.json({ message: "success", status: 200 });
         }
-        if (req.body.desc) {
-          template.desc = req.body.desc;
-        }
-        if (req.body.content) {
-          template.content = req.body.content;
-        }
-        if (req.body.messageTypeId) {
-          template.messageTypeId = req.body.messageTypeId;
-        }
-        if (req.body.status) {
-          template.status = req.body.status;
-        }
-        await template.save();
-        res.json({ message: "success", status: 200 });
       }
     }
   } catch (err) {

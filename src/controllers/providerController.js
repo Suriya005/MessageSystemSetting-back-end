@@ -7,12 +7,11 @@ const db = require("../config/connectDB");
 exports.getProviders = async (req, res) => {
   try {
     const providers = await Provider.find();
-    const result = {
-      status: 200,
-      message: "success",
-      result: providers,
-    };
-    res.json(result);
+    if (providers == null) {
+      res.json({ message: "success", result: [], status: 200 });
+    } else {
+      res.json({ message: "success", result: providers, status: 200 });
+    }
   } catch (error) {
     res.json({ message: failed, result: [], status: 201 });
   }
@@ -20,15 +19,18 @@ exports.getProviders = async (req, res) => {
 
 exports.getProvider = async (req, res) => {
   try {
-    const provider = await Provider.findById(req.query.id);
-    const result = {
-      status: 200,
-      message: "success",
-      result: provider,
-    };
-    res.json(result);
+    if (req.query.id == null || req.query.id == "") {
+      res.json({ message: "invalid parameter.", status: 102 });
+    } else {
+      const provider = await Provider.findById(req.query.id);
+      if (provider == null) {
+        res.json({ message: "success", result: [], status: 200 });
+      } else {
+        res.json({ message: "success", result: provider, status: 200 });
+      }
+    }
   } catch (error) {
-    res.json({ message: "failed", result: [], status: 201 });
+    res.json({ message: "failed",  status: 201 });
   }
 };
 
@@ -113,21 +115,21 @@ exports.deleteProvider = async (req, res) => {
       if (provider == null) {
         res.json({ message: "Wrong data type.", status: 103 });
       } else {
-        const channel = await Channel.find({
-          providerId: { $in: [req.query.id] },
-        });
-        if (channel.length > 0) {
-          res.json({ message: "Wrong data type.", status: 103 });
+        // const channel = await Channel.find({
+        //   providerId: { $in: [req.query.id] },
+        // });
+        // if (channel.length > 0) {
+        //   res.json({ message: "Wrong data type.", status: 103 });
+        // } else {
+        const result = await Provider.findById(req.query.id);
+        if (result.status == "inactive") {
+          res.json({ message: "failed", status: 201 });
         } else {
-          const result = await Provider.findById(req.query.id);
-          if (result.status == "inactive") {
-            res.json({ message: "failed", status: 201 });
-          } else {
-            result.status = "inactive";
-            await result.save();
-            res.json({ message: "success", status: 200 });
-          }
+          result.status = "inactive";
+          await result.save();
+          res.json({ message: "success", status: 200 });
         }
+        // }
       }
     }
   } catch (error) {
