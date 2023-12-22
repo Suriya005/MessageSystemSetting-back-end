@@ -30,7 +30,7 @@ exports.getProvider = async (req, res) => {
       }
     }
   } catch (error) {
-    res.json({ message: "failed",  status: 201 });
+    res.json({ message: "failed", status: 201 });
   }
 };
 
@@ -81,21 +81,35 @@ exports.updateProvider = async (req, res) => {
     ) {
       res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      const provider = await Provider.findById(req.query.id);
-      if (req.body.name) {
-        provider.name = req.body.name;
+      if (!mongoose.Types.ObjectId.isValid(req.query.id)) {
+        res.json({ message: "Wrong data type.", status: 103 });
+      } else {
+        
+        const provider = await Provider.findById(req.query.id);
+        if (req.body.credential.password) {
+          console.log("pass");
+          const salt = await bcrypt.genSalt(10);
+          req.body.credential.password = await bcrypt.hash(
+            req.body.credential.password,
+            salt
+          );
+          provider.credential.password = req.body.credential.password;
+        }
+        if (req.body.name) {
+          provider.name = req.body.name;
+        }
+        if (req.body.desc) {
+          provider.desc = req.body.desc;
+        }
+        if (req.body.credential) {
+          provider.credential = req.body.credential;
+        }
+        if (req.body.status) {
+          provider.status = req.body.status;
+        }
+        await provider.save();
+        res.json({ message: "success", status: 200 });
       }
-      if (req.body.desc) {
-        provider.desc = req.body.desc;
-      }
-      if (req.body.credential) {
-        provider.credential = req.body.credential;
-      }
-      if (req.body.status) {
-        provider.status = req.body.status;
-      }
-      await provider.save();
-      res.json({ message: "success", status: 200 });
     }
   } catch (error) {
     if (error.code == 11000) {

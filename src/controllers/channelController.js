@@ -35,7 +35,7 @@ exports.getAllChannel = async (req, res) => {
 exports.getChannel = async (req, res) => {
   try {
     if (req.query.id == null || req.query.id == "") {
-      res.json({  message: "invalid parameter.", status: 102  });
+      res.json({ message: "invalid parameter.", status: 102 });
     } else {
       const channel = await Channel.aggregate([
         {
@@ -124,25 +124,29 @@ exports.updateChannel = async (req, res) => {
     ) {
       res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      let channel = await Channel.findById(req.query.id);
-      if (req.body.name) {
-        channel.name = req.body.name;
+      if (!mongoose.Types.ObjectId.isValid(req.query.id)) {
+        res.json({ message: "Wrong data type.", status: 103 });
+      } else {
+        let channel = await Channel.findById(req.query.id);
+        if (req.body.name) {
+          channel.name = req.body.name;
+        }
+        if (req.body.desc) {
+          channel.desc = req.body.desc;
+        }
+        if (req.body.providerId) {
+          const provider = loadash.uniq(req.body.providerId);
+          channel.providerId = [];
+          provider.forEach((id) => {
+            channel.providerId.push(new mongoose.Types.ObjectId(id));
+          });
+        }
+        if (req.body.status) {
+          channel.status = req.body.status;
+        }
+        await channel.save();
+        res.json({ message: "success", status: 200 });
       }
-      if (req.body.desc) {
-        channel.desc = req.body.desc;
-      }
-      if (req.body.providerId) {
-        const provider = loadash.uniq(req.body.providerId);
-        channel.providerId = [];
-        provider.forEach((id) => {
-          channel.providerId.push(new mongoose.Types.ObjectId(id));
-        });
-      }
-      if (req.body.status) {
-        channel.status = req.body.status;
-      }
-      await channel.save();
-      res.json({ message: "success", status: 200 });
     }
   } catch (error) {
     if (error.code == 11000) {

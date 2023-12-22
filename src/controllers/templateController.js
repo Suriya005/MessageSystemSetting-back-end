@@ -83,7 +83,7 @@ exports.updateTemplate = async (req, res) => {
     ) {
       res.json({ message: "invalid parameter.", status: 102 });
     } else {
-      if (!mongoose.Types.ObjectId.isValid(req.body.messageTypeId)) {
+      if (!mongoose.Types.ObjectId.isValid(req.query.id) || !mongoose.Types.ObjectId.isValid(req.body.messageTypeId)) {
         res.json({ message: "Wrong data type.", status: 103 });
       } else {
         const template = await Template.findById(req.query.id);
@@ -112,6 +112,7 @@ exports.updateTemplate = async (req, res) => {
     }
   } catch (err) {
     res.json({ message: "failed", status: 201 });
+    console.log(err);
   }
 };
 

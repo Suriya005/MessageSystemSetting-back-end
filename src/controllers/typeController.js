@@ -61,30 +61,44 @@ exports.createType = async (req, res) => {
 };
 
 exports.updateType = async (req, res) => {
-  if (
-    req.body.name == null ||
-    req.body.name == "" ||
-    req.body.msgChannelId == null ||
-    req.body.msgChannelId == "" ||
-    req.body.status == null ||
-    req.body.status == ""
-  ) {
-    res.json({ message: "invalid parameter.", status: 102 });
-  } else {
-    try {
-      const msgType = await Type.findById(req.query.id);
-      if (msgType == null) {
-        res.json({ message: "Wrong data typee.", status: 103 });
+  try {
+    if (
+      req.body.name == null ||
+      req.body.name == "" ||
+      req.body.msgChannelId == null ||
+      req.body.msgChannelId == "" ||
+      req.body.status == null ||
+      req.body.status == ""
+    ) {
+      res.json({ message: "invalid parameter.", status: 102 });
+    } else {
+      if (!mongoose.Types.ObjectId.isValid(req.query.id) || !mongoose.Types.ObjectId.isValid(req.body.msgChannelId)) {
+        res.json({ message: "Wrong data type.", status: 103 });
       } else {
-        msgType.name = req.body.name;
-        msgType.msgChannelId = req.body.msgChannelId;
-        msgType.status = req.body.status;
-        await msgType.save();
-        res.json({ message: "success", status: 200 });
+        const msgType = await Type.findById(req.query.id);
+        if (msgType == null) {
+          res.json({ message: "Wrong data type.", status: 103 });
+        } else {
+          if(req.body.name){
+            msgType.name = req.body.name;
+          }
+          if(req.body.desc){
+            msgType.desc = req.body.desc;
+          }
+          if(req.body.msgChannelId){
+            msgType.msgChannelId = req.body.msgChannelId;
+          }
+          if(req.body.status){
+            msgType.status = req.body.status;
+          }
+
+          await msgType.save();
+          res.json({ message: "success", status: 200 });
+        }
       }
-    } catch (error) {
-      res.json({ message: "failed", status: 201 });
     }
+  } catch (error) {
+    res.json({ message: "failed", status: 201 });
   }
 };
 
