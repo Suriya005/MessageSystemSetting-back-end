@@ -84,6 +84,8 @@ exports.updateType = async (req, res) => {
           }
           if(req.body.desc){
             msgType.desc = req.body.desc;
+          }else{
+            msgType.desc = "";
           }
           if(req.body.msgChannelId){
             msgType.msgChannelId = req.body.msgChannelId;
