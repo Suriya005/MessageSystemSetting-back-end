@@ -87,7 +87,6 @@ exports.updateProvider = async (req, res) => {
         
         const provider = await Provider.findById(req.query.id);
         if (req.body.credential.password) {
-          console.log("pass");
           const salt = await bcrypt.genSalt(10);
           req.body.credential.password = await bcrypt.hash(
             req.body.credential.password,
